@@ -14,6 +14,7 @@ Architecture microservices avec 5 services principaux :
 
 ## Prérequis
 
+
 - Python 3.11+
 - PostgreSQL 14+
 - Redis 7+
