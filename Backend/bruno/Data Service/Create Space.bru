@@ -1,0 +1,23 @@
+meta {
+  name: Create Space
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{spaces_url}}/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "nom": "Mon Jardin",
+    "description": "Description de mon espace jardin",
+    "localisation": "Jardin arrière"
+  }
+}

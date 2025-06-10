@@ -1,0 +1,23 @@
+meta {
+  name: Create Data
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{data_url}}/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "sensor_id": 1,
+    "valeur": 23.5,
+    "timestamp": "2024-01-01T12:00:00Z"
+  }
+}

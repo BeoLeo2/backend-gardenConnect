@@ -1,0 +1,15 @@
+meta {
+  name: Get Sensors
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{sensors_url}}/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

@@ -1,0 +1,195 @@
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:14-alpine
+    container_name: gardenconnect_db
+    environment:
+      POSTGRES_DB: gardenconnect
+      POSTGRES_USER: gardenconnect
+      POSTGRES_PASSWORD: gardenconnect123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - gardenconnect_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gardenconnect -d gardenconnect"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Cache Redis
+  redis:
+    image: redis:7-alpine
+    container_name: gardenconnect_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - gardenconnect_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MQTT Broker Mosquitto
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: gardenconnect_mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    networks:
+      - gardenconnect_network
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_pub -t test -m test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway Service
+  api-gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gateway
+    container_name: gardenconnect_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://gardenconnect:gardenconnect123@postgres:5432/gardenconnect
+      - REDIS_URL=redis://redis:6379/0
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - DATA_SERVICE_URL=http://data-service:8002
+      - ALERT_SERVICE_URL=http://alert-service:8003
+      - MQTT_SERVICE_URL=http://mqtt-service:8004
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gardenconnect_network
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.auth
+    container_name: gardenconnect_auth
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://gardenconnect:gardenconnect123@postgres:5432/gardenconnect
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=demo-secret-key-for-development-only
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gardenconnect_network
+    restart: unless-stopped
+
+  # Data Service
+  data-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.data
+    container_name: gardenconnect_data
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://gardenconnect:gardenconnect123@postgres:5432/gardenconnect
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gardenconnect_network
+    restart: unless-stopped
+
+  # Alert Service
+  alert-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.alert
+    container_name: gardenconnect_alert
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://gardenconnect:gardenconnect123@postgres:5432/gardenconnect
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gardenconnect_network
+    restart: unless-stopped
+
+  # MQTT Service
+  mqtt-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mqtt
+    container_name: gardenconnect_mqtt_service
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql://gardenconnect:gardenconnect123@postgres:5432/gardenconnect
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - gardenconnect_network
+    restart: unless-stopped
+
+  # LoRa GPIO Service (pour Raspberry Pi)
+  lora-gpio-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.lora_gpio
+    container_name: gardenconnect_lora_gpio
+    ports:
+      - "8005:8005"
+    environment:
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - LORA_ENVIRONMENT=production
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - gardenconnect_network
+    restart: unless-stopped
+    # Configuration spéciale pour accès GPIO sur Raspberry Pi
+    privileged: true
+    devices:
+      - /dev/spidev0.0:/dev/spidev0.0
+      - /dev/gpiomem:/dev/gpiomem
+
+volumes:
+  postgres_data:
+  redis_data:
+  mosquitto_data:
+  mosquitto_logs:
+
+networks:
+  gardenconnect_network:
+    driver: bridge

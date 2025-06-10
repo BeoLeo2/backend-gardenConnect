@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "GardenConnect API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

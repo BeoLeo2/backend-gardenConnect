@@ -1,0 +1,15 @@
+meta {
+  name: Get Nodes
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{nodes_url}}/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

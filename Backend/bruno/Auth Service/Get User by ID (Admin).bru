@@ -1,0 +1,15 @@
+meta {
+  name: Get User by ID (Admin)
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{user_url}}/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

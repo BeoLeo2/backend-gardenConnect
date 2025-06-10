@@ -1,0 +1,22 @@
+meta {
+  name: Update Space
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{spaces_url}}/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "nom": "Mon Jardin Modifié",
+    "description": "Description mise à jour"
+  }
+}

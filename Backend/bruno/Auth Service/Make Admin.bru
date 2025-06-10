@@ -1,0 +1,15 @@
+meta {
+  name: Make Admin
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{user_url}}/1/make-admin
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

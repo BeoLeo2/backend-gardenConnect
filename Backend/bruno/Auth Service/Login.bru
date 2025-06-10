@@ -1,0 +1,25 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8001/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "user@example.com",
+    "mot_de_passe": "12345678xX!!"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar('access_token', res.body.access_token);
+    bru.setEnvVar('refresh_token', res.body.refresh_token);
+  }
+}

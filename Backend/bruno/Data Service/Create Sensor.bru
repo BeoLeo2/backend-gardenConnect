@@ -1,0 +1,24 @@
+meta {
+  name: Create Sensor
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{sensors_url}}/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "nom": "Capteur Température",
+    "type": "temperature",
+    "node_id": 1,
+    "unite": "°C"
+  }
+}

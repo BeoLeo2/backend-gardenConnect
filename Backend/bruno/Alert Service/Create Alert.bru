@@ -1,0 +1,24 @@
+meta {
+  name: Create Alert
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{alert_url}}/alerts/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "titre": "Alerte température élevée",
+    "message": "La température dépasse le seuil critique",
+    "niveau": "warning",
+    "capteur_id": 1
+  }
+}

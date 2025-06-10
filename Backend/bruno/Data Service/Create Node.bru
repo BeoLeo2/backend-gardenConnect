@@ -1,0 +1,23 @@
+meta {
+  name: Create Node
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{nodes_url}}/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "nom": "Node Arduino 1",
+    "description": "Premier node Arduino",
+    "espace_id": 1
+  }
+}

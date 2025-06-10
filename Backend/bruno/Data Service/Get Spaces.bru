@@ -1,0 +1,15 @@
+meta {
+  name: Get Spaces
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{spaces_url}}/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

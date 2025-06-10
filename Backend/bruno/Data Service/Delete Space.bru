@@ -1,0 +1,15 @@
+meta {
+  name: Delete Space
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{spaces_url}}/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

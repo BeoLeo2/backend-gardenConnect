@@ -1,0 +1,11 @@
+# Inclure les dépendances de base
+-r base.txt
+
+# Production WSGI server
+gunicorn==21.2.0
+
+# Production monitoring
+sentry-sdk[fastapi]==1.38.0
+
+# Process management
+supervisor==4.2.5

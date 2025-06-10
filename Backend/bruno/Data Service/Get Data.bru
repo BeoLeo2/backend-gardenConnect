@@ -1,0 +1,15 @@
+meta {
+  name: Get Data
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{data_url}}/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
